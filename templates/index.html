@@ -240,7 +240,63 @@ footer {
     
     let stream = null;
     let isProcessing = false;
-    let captureInterval = null;
+    let isActive = true;
+    
+    // Sequential frame processing: send next frame ONLY after previous response completes
+    // This prevents overlapping requests and backpressure issues
+    async function processFrame() {
+        if (!isActive || isProcessing || !video.videoWidth) {
+            return;
+        }
+        
+        isProcessing = true;
+        
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: imageData })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.status === 'success' && data.prediction) {
+                predictionText.textContent = `Detected: ${data.prediction}`;
+                confidenceText.textContent = `Confidence: ${(data.confidence * 100).toFixed(1)}%`;
+                errorText.textContent = '';
+            } else {
+                predictionText.textContent = 'Detecting...';
+                confidenceText.textContent = '';
+                errorText.textContent = '';
+            }
+        } catch (err) {
+            console.error('Prediction error:', err);
+            errorText.textContent = 'Error processing frame';
+            predictionText.textContent = 'Detecting...';
+            confidenceText.textContent = '';
+        } finally {
+            isProcessing = false;
+            
+            // Schedule next frame only after current request completes
+            if (isActive) {
+                setTimeout(processFrame, 200);
+            }
+        }
+    }
     
     async function initCamera() {
         try {
@@ -253,7 +309,11 @@ footer {
             });
             video.srcObject = stream;
             predictionDisplay.style.display = 'block';
-            startCapture();
+            
+            // Wait for video to be ready, then start sequential processing
+            video.addEventListener('loadedmetadata', () => {
+                processFrame();
+            });
         } catch (err) {
             errorText.textContent = 'Camera access denied. Please allow camera access and refresh.';
             predictionDisplay.style.display = 'block';
@@ -261,54 +321,8 @@ footer {
         }
     }
     
-    function captureFrame() {
-        if (isProcessing || !video.videoWidth) return;
-        
-        isProcessing = true;
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
-        
-        const imageData = canvas.toDataURL('image/jpeg', 0.8);
-        
-        fetch('/predict', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ image: imageData })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success' && data.prediction) {
-                predictionText.textContent = `Detected: ${data.prediction}`;
-                confidenceText.textContent = `Confidence: ${(data.confidence * 100).toFixed(1)}%`;
-                errorText.textContent = '';
-            } else {
-                predictionText.textContent = 'Detecting...';
-                confidenceText.textContent = '';
-                errorText.textContent = '';
-            }
-            isProcessing = false;
-        })
-        .catch(err => {
-            console.error('Prediction error:', err);
-            errorText.textContent = 'Error processing frame';
-            isProcessing = false;
-        });
-    }
-    
-    function startCapture() {
-        captureInterval = setInterval(captureFrame, 200);
-    }
-    
     function stopCapture() {
-        if (captureInterval) {
-            clearInterval(captureInterval);
-            captureInterval = null;
-        }
+        isActive = false;
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }

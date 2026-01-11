@@ -1,49 +1,43 @@
 FROM python:3.11-slim
 
+# Prevent Python from writing .pyc files
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies for OpenCV and other packages
+# Install minimal system dependencies required by OpenCV & MediaPipe
 RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
+    libgl1 \
     libgomp1 \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
+# Copy requirements first (better layer caching)
 COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application source
 COPY app.py .
 COPY templates/ ./templates/
 COPY public/ ./public/
-COPY infernece/ ./infernece/
+COPY models/ ./models/
 
-# Create models directory (model will be downloaded on startup)
+# Ensure models directory exists (for downloaded ML model)
 RUN mkdir -p models
 
-# Copy hand_landmarker.task (required for MediaPipe)
-# This file should be included in the repository or built into the image
-COPY models/hand_landmarker.task ./models/
-
-# Expose port
+# Expose port (Render uses $PORT)
 EXPOSE 5000
 
-# Set environment variables
-ENV FLASK_APP=app.py
+# Required runtime environment variables
 ENV FLASK_ENV=production
-ENV PYTHONUNBUFFERED=1
-ENV USE_WEBCAM=false
+ENV MODE=cloud
 ENV PORT=5000
 ENV HOST=0.0.0.0
 
-# Run the application
-CMD ["python", "app.py"]
+# Gunicorn is mandatory for production
+CMD ["gunicorn", "app:app", "--workers=1", "--threads=1", "--timeout=120", "--bind=0.0.0.0:5000"]
