@@ -1,0 +1,13 @@
+mediapipe==0.10.31
+opencv-python-headless==4.12.0.88
+scikit-learn==1.8.0
+numpy==2.2.6
+scipy==1.16.3
+joblib==1.5.3
+tqdm==4.67.1
+Flask==3.1.2
+Jinja2==3.1.6
+Werkzeug==3.1.5
+itsdangerous==2.2.0
+gunicorn==22.0.0
+gdown==5.2.0

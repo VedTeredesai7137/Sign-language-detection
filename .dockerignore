@@ -1,0 +1,48 @@
+# Virtual environments
+venv/
+venv_sld/
+venv_sld_cmd/
+.env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Data (not needed in container)
+data/
+
+# Models (will be downloaded)
+models/*.pkl
+models/*.h5
+# Keep models directory structure
+!models/hand_landmarker.task
+
+# Docker
+Dockerfile
+.dockerignore
+*.dockerfile
+
+# Documentation
+README.md
+*.md
+
+# Tests
+test_*.py
+
+# Training scripts
+train_model.py
+

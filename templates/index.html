@@ -13,7 +13,6 @@ body {
     font-family: system-ui, sans-serif;
 }
 
-/* NAVBAR */
 nav {
     background: #050811;
     padding: 18px 40px;
@@ -32,7 +31,6 @@ nav span {
     font-size: 14px;
 }
 
-/* MAIN */
 main {
     padding: 50px 40px;
     max-width: 1300px;
@@ -50,7 +48,6 @@ main {
     color: #cbd5e1;
 }
 
-/* CONTENT */
 .content {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -64,14 +61,48 @@ main {
     border: 1px solid #1e293b;
 }
 
-/* VIDEO */
 .video-frame {
     width: 100%;
     border-radius: 12px;
     border: 2px solid #1e293b;
+    background: #000;
 }
 
-/* SIGNS */
+#videoElement {
+    width: 100%;
+    border-radius: 12px;
+    border: 2px solid #1e293b;
+    background: #000;
+    display: block;
+}
+
+.prediction-display {
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(96, 165, 250, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    text-align: center;
+}
+
+.prediction-text {
+    font-size: 24px;
+    font-weight: 600;
+    color: #60a5fa;
+    margin-bottom: 8px;
+}
+
+.confidence-text {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.error-text {
+    color: #ef4444;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
 .sign {
     text-align: center;
     margin-bottom: 20px;
@@ -88,7 +119,6 @@ main {
     color: #cbd5e1;
 }
 
-/* FOOTER */
 footer {
     background: #050811;
     border-top: 1px solid #1e293b;
@@ -119,6 +149,12 @@ footer {
     font-size: 13px;
     color: #64748b;
 }
+
+@media (max-width: 900px) {
+    .content {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 </head>
 
@@ -138,7 +174,16 @@ footer {
     <div class="content">
         <div class="card">
             <h3>Live Camera</h3>
-            <img src="/video" class="video-frame">
+            {% if mode == "local" %}
+            <img src="/video" class="video-frame" id="videoStream">
+            {% else %}
+            <video id="videoElement" autoplay playsinline></video>
+            <div class="prediction-display" id="predictionDisplay" style="display: none;">
+                <div class="prediction-text" id="predictionText">Detecting...</div>
+                <div class="confidence-text" id="confidenceText"></div>
+                <div class="error-text" id="errorText"></div>
+            </div>
+            {% endif %}
         </div>
 
         <div class="card">
@@ -183,6 +228,98 @@ footer {
         © 2026 SignVision AI · All Rights Reserved
     </div>
 </footer>
+
+{% if mode == "cloud" %}
+<script>
+(function() {
+    const video = document.getElementById('videoElement');
+    const predictionDisplay = document.getElementById('predictionDisplay');
+    const predictionText = document.getElementById('predictionText');
+    const confidenceText = document.getElementById('confidenceText');
+    const errorText = document.getElementById('errorText');
+    
+    let stream = null;
+    let isProcessing = false;
+    let captureInterval = null;
+    
+    async function initCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    facingMode: 'user'
+                }
+            });
+            video.srcObject = stream;
+            predictionDisplay.style.display = 'block';
+            startCapture();
+        } catch (err) {
+            errorText.textContent = 'Camera access denied. Please allow camera access and refresh.';
+            predictionDisplay.style.display = 'block';
+            console.error('Error accessing camera:', err);
+        }
+    }
+    
+    function captureFrame() {
+        if (isProcessing || !video.videoWidth) return;
+        
+        isProcessing = true;
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+        
+        const imageData = canvas.toDataURL('image/jpeg', 0.8);
+        
+        fetch('/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ image: imageData })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success' && data.prediction) {
+                predictionText.textContent = `Detected: ${data.prediction}`;
+                confidenceText.textContent = `Confidence: ${(data.confidence * 100).toFixed(1)}%`;
+                errorText.textContent = '';
+            } else {
+                predictionText.textContent = 'Detecting...';
+                confidenceText.textContent = '';
+                errorText.textContent = '';
+            }
+            isProcessing = false;
+        })
+        .catch(err => {
+            console.error('Prediction error:', err);
+            errorText.textContent = 'Error processing frame';
+            isProcessing = false;
+        });
+    }
+    
+    function startCapture() {
+        captureInterval = setInterval(captureFrame, 200);
+    }
+    
+    function stopCapture() {
+        if (captureInterval) {
+            clearInterval(captureInterval);
+            captureInterval = null;
+        }
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    }
+    
+    initCamera();
+    
+    window.addEventListener('beforeunload', stopCapture);
+})();
+</script>
+{% endif %}
 
 </body>
 </html>
