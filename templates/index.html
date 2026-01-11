@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SignVision AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    background: #0a0e27;
+    color: #f8fafc;
+    font-family: system-ui, sans-serif;
+}
+
+/* NAVBAR */
+nav {
+    background: #050811;
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #1e293b;
+}
+nav h1 {
+    font-size: 22px;
+    background: linear-gradient(90deg, #60a5fa, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+nav span {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* MAIN */
+main {
+    padding: 50px 40px;
+    max-width: 1300px;
+    margin: auto;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.title h2 {
+    font-size: 36px;
+}
+.title p {
+    color: #cbd5e1;
+}
+
+/* CONTENT */
+.content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+.card {
+    background: #0f1419;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #1e293b;
+}
+
+/* VIDEO */
+.video-frame {
+    width: 100%;
+    border-radius: 12px;
+    border: 2px solid #1e293b;
+}
+
+/* SIGNS */
+.sign {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.sign img {
+    width: 100%;
+    max-width: 180px;
+    border-radius: 12px;
+    border: 2px solid #1e293b;
+}
+.sign span {
+    display: block;
+    margin-top: 8px;
+    color: #cbd5e1;
+}
+
+/* FOOTER */
+footer {
+    background: #050811;
+    border-top: 1px solid #1e293b;
+    padding: 40px 20px 20px;
+}
+
+.footer-grid {
+    max-width: 1200px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 30px;
+}
+
+.footer-grid h4 {
+    margin-bottom: 10px;
+}
+.footer-grid p,
+.footer-grid li {
+    font-size: 14px;
+    color: #94a3b8;
+    list-style: none;
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 13px;
+    color: #64748b;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+    <h1>SignVision AI</h1>
+    <span>Real-Time Sign Language Detection</span>
+</nav>
+
+<main>
+    <div class="title">
+        <h2>Live Sign Detection</h2>
+        <p>Show hand gestures (0–9, A–Z) in front of your camera</p>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <h3>Live Camera</h3>
+            <img src="/video" class="video-frame">
+        </div>
+
+        <div class="card">
+            <h3>Reference Signs</h3>
+            <div class="sign">
+                <img src="/public/A.jpg">
+                <span>Letter A</span>
+            </div>
+            <div class="sign">
+                <img src="/public/C.jpg">
+                <span>Letter C</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-grid">
+        <div>
+            <h4>About</h4>
+            <p>SignVision AI is a real-time hand gesture recognition system using computer vision.</p>
+        </div>
+        <div>
+            <h4>Features</h4>
+            <ul>
+                <li>Live Detection</li>
+                <li>Supports A–Z & 0–9</li>
+                <li>Beginner Friendly</li>
+            </ul>
+        </div>
+        <div>
+            <h4>Technology</h4>
+            <ul>
+                <li>Python + OpenCV</li>
+                <li>MediaPipe</li>
+                <li>Machine Learning</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        © 2026 SignVision AI · All Rights Reserved
+    </div>
+</footer>
+
+</body>
+</html>

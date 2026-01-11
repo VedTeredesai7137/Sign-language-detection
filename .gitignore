@@ -1,0 +1,69 @@
+# =========================
+# PROJECT DATA (CRITICAL)
+# =========================
+/data/
+
+# =========================
+# VIRTUAL ENVIRONMENTS
+# =========================
+venv/
+venv_sld/
+venv_sld_cmd/
+.env/
+
+# =========================
+# ML MODELS & ARTIFACTS
+# =========================
+/models/*.pkl
+/models/*.joblib
+/models/*.h5
+/models/*.pt
+/models/*.onnx
+/models/*.task
+
+# (keep models directory but ignore contents)
+models/__pycache__/
+
+# =========================
+# PYTHON CACHE
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# =========================
+# FLASK / APP RUNTIME
+# =========================
+instance/
+*.log
+
+# =========================
+# JUPYTER (IF USED LATER)
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# IDE / EDITORS
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS / SYSTEM FILES
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+# TEMP / CACHE
+# =========================
+.cache/
+tmp/
+temp/
+
+# =========================
+# ENV FILES
+# =========================
+*.env
