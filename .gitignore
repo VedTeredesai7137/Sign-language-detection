@@ -2,6 +2,7 @@
 # PROJECT DATA (CRITICAL)
 # =========================
 /data/
+/data2/
 
 # =========================
 # VIRTUAL ENVIRONMENTS

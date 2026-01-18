@@ -4,6 +4,7 @@ import pickle
 import numpy as np
 import os
 import base64
+import string
 import time
 import threading
 import mediapipe as mp
@@ -26,12 +27,13 @@ MODE = os.getenv("MODE", "local").lower()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 PUBLIC_DIR = os.path.join(BASE_DIR, "public")
-MODEL_FILE = "signs_all_rf_model.pkl"
+MODEL_FILE = "signs_AZ_rf_model.pkl"
 HAND_LANDMARKER_FILE = "hand_landmarker.task"
 MODEL_PATH = os.getenv("MODEL_PATH", os.path.join(MODEL_DIR, MODEL_FILE))
 HAND_LANDMARKER_PATH = os.path.join(MODEL_DIR, HAND_LANDMARKER_FILE)
 
-GOOGLE_DRIVE_FILE_ID = "1znuoAf-V8JNrF8DatR0f8p0tnNxtXGiJ"
+GOOGLE_DRIVE_FILE_ID = "138YZZwXls251Zsg3cBgUG0qjVctw25Sx"
+
 
 # ===============================
 # MEDIAPIPE THREAD SAFETY LOCK
@@ -125,7 +127,7 @@ try:
 except Exception as e:
     raise RuntimeError(f"FATAL: Failed to load model from {MODEL_PATH}: {e}")
 
-LABELS = [str(i) for i in range(10)] + [chr(i) for i in range(65, 91)]
+LABELS = list(string.ascii_uppercase)
 
 # ===============================
 # MEDIAPIPE HAND LANDMARKER

@@ -21,19 +21,21 @@ from mediapipe.tasks.python.vision import (
 # CONFIGURATION (WSL PATHS)
 # =====================================================
 
-DATA_DIR = "/mnt/d/VED/Coding/ML/Computer Vision/CVE/Sign Convention/SLD/data"
+DATA_DIR = "/mnt/d/VED/Coding/ML/Computer Vision/CVE/Sign Convention/SLD/data2"
 
 MODEL_DIR = "models"
 MP_MODEL_PATH = os.path.join(MODEL_DIR, "hand_landmarker.task")
-OUTPUT_MODEL_PATH = os.path.join(MODEL_DIR, "signs_all_rf_model.pkl")
+
+# 🔁 NEW MODEL NAME (A–Z)
+OUTPUT_MODEL_PATH = os.path.join(MODEL_DIR, "signs_AZ_rf_model.pkl")
 
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 # =====================================================
-# LABELS: 0–9 + A–Z (36 CLASSES)
+# LABELS (A–Z ONLY)
 # =====================================================
 
-LABELS = [str(i) for i in range(10)] + list(string.ascii_uppercase)
+LABELS = list(string.ascii_uppercase)  # ['A', 'B', ..., 'Z']
 
 print(f"📌 Total classes: {len(LABELS)}")
 print(LABELS)
@@ -63,7 +65,7 @@ for label in LABELS:
     label_path = os.path.join(DATA_DIR, label)
 
     if not os.path.isdir(label_path):
-        print(f"⚠️ Missing folder, skipping: {label}")
+        print(f"⚠️ Folder missing, skipping: {label}")
         continue
 
     image_files = sorted(os.listdir(label_path))
@@ -133,11 +135,11 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # =====================================================
-# RANDOM FOREST (SCALED FOR 36 CLASSES)
+# RANDOM FOREST (A–Z)
 # =====================================================
 
 model = RandomForestClassifier(
-    n_estimators=800,
+    n_estimators=400,
     max_depth=None,
     min_samples_leaf=2,
     class_weight="balanced",
@@ -145,7 +147,7 @@ model = RandomForestClassifier(
     n_jobs=-1
 )
 
-print("\n🧠 Training RandomForest (36 classes)...\n")
+print("\n🧠 Training RandomForest (A–Z)...\n")
 model.fit(X_train, y_train)
 
 # =====================================================
